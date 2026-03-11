@@ -1,19 +1,28 @@
-/**
- * MAIN CLASS: UseCase1HotelBookingApp
- *
- * Use Case 1: Application Entry & Welcome Message
- *
- * @author Subashree
- * @version 1.0
- */
 public class BookMyStayApp {
 
-    /**
-     * Application entry point
-     * @param args Command-line arguments
-     */
     public static void main(String[] args) {
-        System.out.println("Welcome to the Hotel Booking Management System");
-        System.out.println("System initialized successfully.");
+
+        System.out.println("Hotel Room Initialization");
+
+        Room singleRoom = new SingleRoom();
+        Room doubleRoom = new DoubleRoom();
+        Room suiteRoom = new SuiteRoom();
+
+        int singleAvailability = 5;
+        int doubleAvailability = 3;
+        int suiteAvailability = 2;
+
+        System.out.println("\nSingle Room:");
+        singleRoom.displayRoomDetails();
+        System.out.println("Available: " + singleAvailability);
+
+        System.out.println("\nDouble Room:");
+        doubleRoom.displayRoomDetails();
+        System.out.println("Available: " + doubleAvailability);
+
+        System.out.println("\nSuite Room:");
+        suiteRoom.displayRoomDetails();
+        System.out.println("Available: " + suiteAvailability);
     }
+
 }
