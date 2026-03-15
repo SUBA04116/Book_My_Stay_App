@@ -2,17 +2,17 @@
  *
  * MAIN CLASS BookMyStayApp
  *
- * Use Case 4: Room Search & Availability Check
+ * Use Case 5: Booking Request Queue
  *
  * Description:
- * This class demonstrates how guests
- * can search for available rooms
- * without modifying inventory data.
+ * This class demonstrates how booking
+ * requests are accepted and queued
+ * in a fair and predictable order.
  *
- * The system enforces read-only access
- * by design.
+ * No room allocation or inventory
+ * update is performed here.
  *
- * @version 4.3
+ * @version 5.3
  */
 
 public class BookMyStayApp {
@@ -24,32 +24,36 @@ public class BookMyStayApp {
      */
     public static void main(String[] args) {
 
-        /*
-         * Create room domain objects
-         */
-        Room singleRoom = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suiteRoom = new SuiteRoom();
+        // Display application header
+        System.out.println("Booking Request Queue");
+
+        // Initialize booking queue
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+
+        // Create booking requests
+        Reservation r1 = new Reservation("Abhi", "Single");
+        Reservation r2 = new Reservation("Subha", "Double");
+        Reservation r3 = new Reservation("Vanmathi", "Suite");
+
+        // Add requests to the queue
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
         /*
-         * Initialize centralized inventory
+         * Display queued booking requests
+         * in FIFO order
          */
-        RoomInventory inventory = new RoomInventory();
+        while (bookingQueue.hasPendingRequests()) {
 
-        /*
-         * Create search service
-         */
-        RoomSearchService searchService = new RoomSearchService();
+            Reservation nextRequest = bookingQueue.getNextRequest();
 
-        /*
-         * Perform room search
-         * (Read-only operation)
-         */
-        searchService.searchAvailableRooms(
-                inventory,
-                singleRoom,
-                doubleRoom,
-                suiteRoom
-        );
+            System.out.println(
+                    "Processing booking for Guest: "
+                            + nextRequest.getGuestName()
+                            + ", Room Type: "
+                            + nextRequest.getRoomType()
+            );
+        }
     }
 }
