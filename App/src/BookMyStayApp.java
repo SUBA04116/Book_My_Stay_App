@@ -1,45 +1,82 @@
+import java.util.Scanner;
+
 /**
  *
- * MAIN CLASS UseCase8BookingHistoryReport
+ * MAIN CLASS BookMyStayApp
  *
- * Use Case 8: Booking History & Reporting
+ * Use Case 9: Error Handling & Validation
  *
  * Description:
- * This class demonstrates how
- * confirmed bookings are stored
- * and reported.
+ * Demonstrates how user input
+ * is validated before booking.
  *
- * The system maintains an ordered
- * audit trail of reservations.
+ * The system:
+ * - Accepts input
+ * - Validates input
+ * - Handles errors safely
  *
- * @version 8.0
+ * @version 9.0
  */
 
 public class BookMyStayApp {
 
-    /**
-     * Application entry point.
-     *
-     * @param args Command-line arguments
-     */
     public static void main(String[] args) {
 
-        System.out.println("Booking History and Reporting");
+        // Display header
+        System.out.println("Booking Validation");
 
-        BookingHistory history = new BookingHistory();
+        Scanner scanner = new Scanner(System.in);
 
-        // assume confirmed reservations
-        Reservation r1 = new Reservation("Abhi", "Single");
-        Reservation r2 = new Reservation("Subha", "Double");
-        Reservation r3 = new Reservation("Vanmathi", "Suite");
+        // Initialize components
+        RoomInventory inventory = new RoomInventory();
+        ReservationValidator validator =
+                new ReservationValidator();
+        BookingRequestQueue queue =
+                new BookingRequestQueue();
 
-        history.addReservation(r1);
-        history.addReservation(r2);
-        history.addReservation(r3);
+        try {
 
-        BookingReportService reportService =
-                new BookingReportService();
+            /*
+             * Get user input
+             */
+            System.out.print("Enter guest name: ");
+            String name = scanner.nextLine();
 
-        reportService.generateReport(history);
+            System.out.print(
+                    "Enter room type (Single/Double/Suite): "
+            );
+            String roomType = scanner.nextLine();
+
+            /*
+             * Validate input
+             */
+            validator.validate(name, roomType, inventory);
+
+            /*
+             * If valid → create booking request
+             */
+            Reservation reservation =
+                    new Reservation(name, roomType);
+
+            queue.addRequest(reservation);
+
+            System.out.println("Booking request accepted.");
+
+        } catch (InvalidBookingException e) {
+
+            /*
+             * Handle validation errors
+             */
+            System.out.println(
+                    "Booking failed: " + e.getMessage()
+            );
+
+        } finally {
+
+            /*
+             * Cleanup
+             */
+            scanner.close();
+        }
     }
 }
