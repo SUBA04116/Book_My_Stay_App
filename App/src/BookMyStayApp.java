@@ -1,45 +1,57 @@
 /**
  *
- * MAIN CLASS UseCase8BookingHistoryReport
+ * MAIN CLASS BookMyStayApp
  *
- * Use Case 8: Booking History & Reporting
+ * Use Case 12: Data Persistence & Recovery
  *
  * Description:
- * This class demonstrates how
- * confirmed bookings are stored
- * and reported.
+ * Demonstrates saving and restoring inventory
+ * using file-based persistence.
  *
- * The system maintains an ordered
- * audit trail of reservations.
- *
- * @version 8.0
+ * @version 12.0
  */
 
 public class BookMyStayApp {
 
-    /**
-     * Application entry point.
-     *
-     * @param args Command-line arguments
-     */
     public static void main(String[] args) {
 
-        System.out.println("Booking History and Reporting");
+        System.out.println("System Recovery");
 
-        BookingHistory history = new BookingHistory();
+        /*
+         * Initialize inventory
+         */
+        RoomInventory inventory = new RoomInventory();
 
-        // assume confirmed reservations
-        Reservation r1 = new Reservation("Abhi", "Single");
-        Reservation r2 = new Reservation("Subha", "Double");
-        Reservation r3 = new Reservation("Vanmathi", "Suite");
+        /*
+         * Initialize persistence service
+         */
+        FilePersistenceService persistence =
+                new FilePersistenceService();
 
-        history.addReservation(r1);
-        history.addReservation(r2);
-        history.addReservation(r3);
+        String filePath = "inventory.txt";
 
-        BookingReportService reportService =
-                new BookingReportService();
+        /*
+         * LOAD existing data (if any)
+         */
+        persistence.loadInventory(inventory, filePath);
 
-        reportService.generateReport(history);
+        /*
+         * Display inventory
+         */
+        System.out.println("\nCurrent Inventory:");
+
+        System.out.println("Single: " +
+                inventory.getRoomAvailability().get("Single"));
+
+        System.out.println("Double: " +
+                inventory.getRoomAvailability().get("Double"));
+
+        System.out.println("Suite: " +
+                inventory.getRoomAvailability().get("Suite"));
+
+        /*
+         * SAVE current state
+         */
+        persistence.saveInventory(inventory, filePath);
     }
 }
