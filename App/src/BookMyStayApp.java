@@ -2,64 +2,79 @@
  *
  * MAIN CLASS BookMyStayApp
  *
- * Use Case 10: Booking Cancellation
+ * Use Case 11: Concurrent Booking Simulation
  *
  * Description:
- * Demonstrates cancellation of bookings
- * and rollback using stack.
+ * Simulates multiple users booking simultaneously
+ * using threads and synchronization.
  *
- * @version 10.0
+ * @version 11.0
  */
 
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Booking Cancellation");
+        System.out.println("Concurrent Booking Simulation");
 
         /*
-         * Initialize inventory
+         * Initialize shared components
          */
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
         RoomInventory inventory = new RoomInventory();
+        RoomAllocationService allocationService = new RoomAllocationService();
 
         /*
-         * Initialize cancellation service
+         * Add booking requests
          */
-        CancellationService cancellationService =
-                new CancellationService();
+        bookingQueue.addRequest(new Reservation("Abhi", "Single"));
+        bookingQueue.addRequest(new Reservation("Vanmathi", "Double"));
+        bookingQueue.addRequest(new Reservation("Kural", "Suite"));
+        bookingQueue.addRequest(new Reservation("Subha", "Single"));
 
         /*
-         * Simulate confirmed booking
+         * Create threads
          */
-        String reservationId = "Single-1";
-        String roomType = "Single";
+        Thread t1 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
+        );
 
-        cancellationService.registerBooking(
-                reservationId,
-                roomType
+        Thread t2 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
         );
 
         /*
-         * Perform cancellation
+         * Start threads
          */
-        cancellationService.cancelBooking(
-                reservationId,
-                inventory
-        );
+        t1.start();
+        t2.start();
 
         /*
-         * Show rollback history
+         * Wait for completion
          */
-        cancellationService.showRollbackHistory();
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Thread execution interrupted.");
+        }
 
         /*
-         * Show updated inventory
+         * Display remaining inventory
          */
-        int updated =
-                inventory.getRoomAvailability().get("Single");
+        System.out.println("\nRemaining Inventory:");
 
-        System.out.println(
-                "\nUpdated Single Room Availability: " + updated
-        );
+        System.out.println("Single: " +
+                inventory.getRoomAvailability().get("Single"));
+
+        System.out.println("Double: " +
+                inventory.getRoomAvailability().get("Double"));
+
+        System.out.println("Suite: " +
+                inventory.getRoomAvailability().get("Suite"));
     }
 }
