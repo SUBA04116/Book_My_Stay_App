@@ -1,45 +1,80 @@
 /**
  *
- * MAIN CLASS UseCase8BookingHistoryReport
+ * MAIN CLASS BookMyStayApp
  *
- * Use Case 8: Booking History & Reporting
+ * Use Case 11: Concurrent Booking Simulation
  *
  * Description:
- * This class demonstrates how
- * confirmed bookings are stored
- * and reported.
+ * Simulates multiple users booking simultaneously
+ * using threads and synchronization.
  *
- * The system maintains an ordered
- * audit trail of reservations.
- *
- * @version 8.0
+ * @version 11.0
  */
 
 public class BookMyStayApp {
 
-    /**
-     * Application entry point.
-     *
-     * @param args Command-line arguments
-     */
     public static void main(String[] args) {
 
-        System.out.println("Booking History and Reporting");
+        System.out.println("Concurrent Booking Simulation");
 
-        BookingHistory history = new BookingHistory();
+        /*
+         * Initialize shared components
+         */
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        RoomInventory inventory = new RoomInventory();
+        RoomAllocationService allocationService = new RoomAllocationService();
 
-        // assume confirmed reservations
-        Reservation r1 = new Reservation("Abhi", "Single");
-        Reservation r2 = new Reservation("Subha", "Double");
-        Reservation r3 = new Reservation("Vanmathi", "Suite");
+        /*
+         * Add booking requests
+         */
+        bookingQueue.addRequest(new Reservation("Abhi", "Single"));
+        bookingQueue.addRequest(new Reservation("Vanmathi", "Double"));
+        bookingQueue.addRequest(new Reservation("Kural", "Suite"));
+        bookingQueue.addRequest(new Reservation("Subha", "Single"));
 
-        history.addReservation(r1);
-        history.addReservation(r2);
-        history.addReservation(r3);
+        /*
+         * Create threads
+         */
+        Thread t1 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
+        );
 
-        BookingReportService reportService =
-                new BookingReportService();
+        Thread t2 = new Thread(
+                new ConcurrentBookingProcessor(
+                        bookingQueue, inventory, allocationService
+                )
+        );
 
-        reportService.generateReport(history);
+        /*
+         * Start threads
+         */
+        t1.start();
+        t2.start();
+
+        /*
+         * Wait for completion
+         */
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Thread execution interrupted.");
+        }
+
+        /*
+         * Display remaining inventory
+         */
+        System.out.println("\nRemaining Inventory:");
+
+        System.out.println("Single: " +
+                inventory.getRoomAvailability().get("Single"));
+
+        System.out.println("Double: " +
+                inventory.getRoomAvailability().get("Double"));
+
+        System.out.println("Suite: " +
+                inventory.getRoomAvailability().get("Suite"));
     }
 }
